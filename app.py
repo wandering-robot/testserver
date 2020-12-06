@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
 import json
+from datetime import datetime
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -89,15 +90,32 @@ company_put_args.add_argument(
     "problem", type=str, help="did not supply problem")
 
 
-class ProblemModel(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    compName = db.Column(db.String(100), nullable=False)
-    probID = db.Column(db.Integer, nullable=False)
-    probStartTime = db.Column(db.Date)
-    soluID = db.Column(db.Integer, nullable=False)
+class ProblemDatabase(db.Model):
+    __tablename__ = 'problems'
+    id = db.Column(db.Integer, primary_key=True, unique=True,
+                   autoincrement=True, nullable=False)
+    probName = db.Column(db.String(100), nullable=False)
+    probStartTime = db.Column(db.DateTime, default=datetime.now)
+    solutionId = db.Column(db.Integer, db.ForeignKey(
+        'solutions.id'), nullable=False)
+    solutions = db.relationship(
+        "SolutionDatabase", backref=db.backref("ProblemDatabase", lazy=True))
 
     def __repr__(self):
-        return f"Video\tname: {name}\tviews= {views}\tlikes = {likes}"
+        return f"Problem name: {probName}"
+
+
+class SolutionDatabase(db.Model):
+    __tablename__ = 'solutions'
+    id = db.Column(db.Integer, primary_key=True, unique=True,
+                   autoincrement=True, nullable=False)
+    soluName = db.Column(db.String(100), nullable=False)
+    soluBody = db.Column(db.String(300), nullable=False)
+    soluLikes = db.Column(db.Integer, nullable=False)
+    author = db.Column(db.String(100), nullable=False)
+
+    def __repr__(self):
+        return f"Solution name: {soluName} likes: {soluLikes}"
 
 
 db.create_all()
@@ -107,7 +125,7 @@ db.create_all()
 
 class companyView(Resource):
     def get(self, companyName):
-        result = {"Company Name": companyName}
+        result = {"Company_Name": companyName}
         return result
 
     def put(self, companyName):
@@ -125,8 +143,8 @@ api.add_resource(companyView, "/<string:companyName>/",
 
 class problemView(Resource):
     def get(self, companyName, probNum):
-        result = {"Company Name": companyName,
-                  "Problem id": probNum}
+        result = {"Company_Name": companyName,
+                  "Problem_id": probNum}
         return result
 
     def put(self, companyName, probNum):
@@ -143,9 +161,9 @@ api.add_resource(problemView, "/<string:companyName>/<int:probNum>")
 
 class solutionView(Resource):
     def get(self, companyName, probNum, solNum):
-        result = {"Company Name": companyName,
-                  "Problem id": probNum,
-                  "Solution id": solNum}
+        result = {"Company_Name": companyName,
+                  "Problem_id": probNum,
+                  "Solution_id": solNum}
         return result
 
     def put(self, companyName, probNum, solNum):
@@ -161,3 +179,4 @@ api.add_resource(
 if __name__ == "__main__":
 
     app.run(host="0.0.0.0", port=5000, debug=True)
+    #solutions = SolutionDatabase()
