@@ -64,6 +64,15 @@ class Video(Resource):
 
 api.add_resource(Video, "/video/<int:video_id>")
 
+
+class helloWorld(Resource):
+    @marshal_with(resource_fields)
+    def get(self):
+        result = {"server return":"Hello World"}
+        return result
+
+api.add_resource(helloWorld,"/helloworld")
+
 if __name__ == "__main__":
 
     app.run(host="0.0.0.0", port=5000, debug=True)
