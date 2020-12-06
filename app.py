@@ -112,6 +112,7 @@ class companyView(Resource):
 
     def put(self, companyName):
         args = company_put_args.parse_args()
+        print(f'\n{args}\n')
         return args
 
 
@@ -130,6 +131,7 @@ class problemView(Resource):
 
     def put(self, companyName, probNum):
         args = problem_put_args.parse_args()
+        print(f'\n{args}\n')
         return args
 
 
@@ -148,7 +150,7 @@ class solutionView(Resource):
 
     def put(self, companyName, probNum, solNum):
         args = solution_put_args.parse_args()
-        print(args)
+        print(f'\n{args}\n')
         return json.dumps(args)
 
 
