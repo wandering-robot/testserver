@@ -67,18 +67,47 @@ db = SQLAlchemy(app)
 # api.add_resource(Video, "/video/<int:video_id>")
 
 
-# actual code
-class hack(Resource):
+# code for company wide view to see all the problems
+
+
+class companyView(Resource):
     def get(self, companyName):
-        result = {"server_return": companyName}
+        result = {"Company Name": companyName}
         return result
 
 
-api.add_resource(hack, "/<string:companyName>/")
+api.add_resource(companyView, "/<string:companyName>")
+
+
+# code for the problem view to see all the solutions
+
+
+class problemView(Resource):
+    def get(self, companyName, probNum):
+        result = {"Company Name": companyName,
+                  "Problem id": probNum}
+        return result
+
+
+api.add_resource(problemView, "/<string:companyName>/<int:probNum>")
+
+
+# code for the solution view to see you enter your solution
+
+
+class solutionView(Resource):
+    def get(self, companyName, probNum, solNum):
+        result = {"Company Name": companyName,
+                  "Problem id": probNum,
+                  "Solution id": solNum}
+        return result
+
+
+api.add_resource(
+    solutionView, "/<string:companyName>/<int:probNum>/<int:solNum>")
+
 
 # hello world section
-
-
 class helloWorld(Resource):
     def get(self):
         result = {"server_return": "Hello World"}
