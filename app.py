@@ -76,7 +76,8 @@ class companyView(Resource):
         return result
 
 
-api.add_resource(companyView, "/<string:companyName>")
+api.add_resource(companyView, "/<string:companyName>/",
+                 "/<string:companyName>")
 
 
 # code for the problem view to see all the solutions
