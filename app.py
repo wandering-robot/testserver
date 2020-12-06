@@ -62,16 +62,17 @@ class Video(Resource):
         return "", 204
 
 
-api.add_resource(Video, "/video/<int:video_id>")
+#api.add_resource(Video, "/video/<int:video_id>")
 
 
 class helloWorld(Resource):
     @marshal_with(resource_fields)
     def get(self):
-        result = {"server return":"Hello World"}
+        result = {"server return": "Hello World"}
         return result
 
-api.add_resource(helloWorld,"/helloworld")
+
+api.add_resource(helloWorld, "/helloworld")
 
 if __name__ == "__main__":
 
