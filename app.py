@@ -67,7 +67,7 @@ class Video(Resource):
 
 class helloWorld(Resource):
     def get(self):
-        result = {"server return": "Hello World"}
+        result = {"server_return": "Hello World"}
         return result
 
 
