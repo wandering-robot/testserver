@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_restful import Api, Resource, reqparse, abort, fields, marshal_with
 from flask_sqlalchemy import SQLAlchemy
-from Flask-Cors import CORS
+from flask_cors import CORS
 
 app = Flask(__name__)
 cors = CORS(app)
