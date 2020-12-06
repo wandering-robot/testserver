@@ -3,6 +3,8 @@ from flask_restful import Api, Resource, reqparse, abort, fields, marshal_with
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
+import json
+
 app = Flask(__name__)
 cors = CORS(app)
 api = Api(app)
@@ -146,7 +148,7 @@ class solutionView(Resource):
 
     def put(self, companyName, probNum, solNum):
         args = solution_put_args.parse_args()
-        return args
+        return json.dumps(args)
 
 
 api.add_resource(
