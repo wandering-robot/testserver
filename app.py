@@ -66,6 +66,39 @@ db = SQLAlchemy(app)
 
 # api.add_resource(Video, "/video/<int:video_id>")
 
+################################################################################################
+
+# ensure solutions are sent with the proper things
+solution_put_args = reqparse.RequestParser()
+solution_put_args.add_argument(
+    "userName", type=str, help="Did not supply user's name")
+solution_put_args.add_argument(
+    "userSolution", type=str, help="did not supply solution body")
+
+# ensure solutions get upvoted
+problem_put_args = reqparse.RequestParser()
+problem_put_args.add_argument(
+    "problemId", type=int, help="did not identify problem to upvote")
+
+
+# ensure problems are added
+company_put_args = reqparse.RequestParser()
+company_put_args.add_argument(
+    "problem", type=str, help="did not supply problem")
+
+
+class ProblemModel(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    compName = db.Column(db.String(100), nullable=False)
+    probID = db.Column(db.Integer, nullable=False)
+    probStartTime = db.Column(db.Date)
+    soluID = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        return f"Video\tname: {name}\tviews= {views}\tlikes = {likes}"
+
+
+db.create_all()
 
 # code for company wide view to see all the problems
 
@@ -74,6 +107,10 @@ class companyView(Resource):
     def get(self, companyName):
         result = {"Company Name": companyName}
         return result
+
+    def put(self, companyName):
+        args = company_put_args.parse_args()
+        return args
 
 
 api.add_resource(companyView, "/<string:companyName>/",
@@ -89,6 +126,10 @@ class problemView(Resource):
                   "Problem id": probNum}
         return result
 
+    def put(self, companyName, probNum):
+        args = problem_put_args.parse_args()
+        return args
+
 
 api.add_resource(problemView, "/<string:companyName>/<int:probNum>")
 
@@ -103,19 +144,14 @@ class solutionView(Resource):
                   "Solution id": solNum}
         return result
 
+    def put(self, companyName, probNum, solNum):
+        args = solution_put_args.parse_args()
+        return args
+
 
 api.add_resource(
     solutionView, "/<string:companyName>/<int:probNum>/<int:solNum>")
 
-
-# hello world section
-class helloWorld(Resource):
-    def get(self):
-        result = {"server_return": "Hello World"}
-        return result
-
-
-api.add_resource(helloWorld, "/helloworld")
 
 if __name__ == "__main__":
 
