@@ -66,7 +66,6 @@ class Video(Resource):
 
 
 class helloWorld(Resource):
-    @marshal_with(resource_fields)
     def get(self):
         result = {"server return": "Hello World"}
         return result
