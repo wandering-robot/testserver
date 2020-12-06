@@ -148,6 +148,7 @@ class solutionView(Resource):
 
     def put(self, companyName, probNum, solNum):
         args = solution_put_args.parse_args()
+        print(args)
         return json.dumps(args)
 
 
