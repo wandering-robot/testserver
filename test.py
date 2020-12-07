@@ -11,5 +11,13 @@ response = requests.post(BASE + "evanCompany/2/1",
                          {"userName": "Jane Smith", "userSolution": "Be better"})
 print(response.json())
 
+response = requests.post(BASE + "evanCompany/2/1",
+                         {"userName": "Jerry Smith", "userSolution": "Be better"})
+print(response.json())
+
+response = requests.post(BASE + "evanCompany/2/1",
+                         {"userName": "Bob Smith", "userSolution": "Be better"})
+print(response.json())
+
 response = requests.get(BASE + "evanCompany/2")
 print(response.json())

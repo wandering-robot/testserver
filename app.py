@@ -62,6 +62,17 @@ def get_data(filename):
     return data_list
 
 
+def jsonify(data_list):
+    data = {}
+    for line in data_list:
+        line = line.strip('\n')
+        line_list = line.split('\t')
+        if len(line_list) > 1:
+            data[line_list[0]] = {
+                "name": line_list[1], "solution": line_list[2]}
+    return data
+
+
 class problemView(Resource):
     '''code to see all the proposed solutions to a problem'''
 
@@ -71,6 +82,7 @@ class problemView(Resource):
             result = get_data('data1.txt')
         elif probNum == 2:
             result = get_data('data2.txt')
+        result = jsonify(result)
         return {"data": result}
 
     def post(self, companyName, probNum):
@@ -99,6 +111,14 @@ api.add_resource(problemView, "/<string:companyName>/<int:probNum>")
 
 
 ### code for the solution view to see you enter your solution ###
+def sol_not_in(solNum, fileName):
+    data_list = get_data(fileName)
+    json_list = jsonify(data_list)
+    for key in json_list.keys():
+        print(key, solNum)
+        if key == solNum:
+            return False
+    return True
 
 
 class solutionView(Resource):
@@ -109,17 +129,20 @@ class solutionView(Resource):
         return result
 
     def post(self, companyName, probNum, solNum):
-        print(probNum)
+        args = solution_post_args.parse_args()
         if probNum == 1:
-            args = solution_post_args.parse_args()      # "userName" "userSolution"
-            with open('data1.txt', 'a') as file:
-                file.write(
-                    f'{solNum}\t{args["userName"]}\t{args["userSolution"]}\n')
+            if sol_not_in(solNum, "data1.txt"):
+                args = solution_post_args.parse_args()      # "userName" "userSolution"
+                with open('data1.txt', 'a') as file:
+                    file.write(
+                        f'{solNum}\t{args["userName"]}\t{args["userSolution"]}\n')
         elif probNum == 2:
-            args = solution_post_args.parse_args()      # "userName" "userSolution"
-            with open('data2.txt', 'a') as file:
-                file.write(
-                    f'{solNum}\t{args["userName"]}\t{args["userSolution"]}\n')
+            if sol_not_in(solNum, "data2.txt"):
+                print("**********")
+                args = solution_post_args.parse_args()      # "userName" "userSolution"
+                with open('data2.txt', 'a') as file:
+                    file.write(
+                        f'{solNum}\t{args["userName"]}\t{args["userSolution"]}\n')
         print(f'\n{args}\n')
         return json.dumps(args)
 
@@ -129,4 +152,5 @@ api.add_resource(
 
 
 if __name__ == "__main__":
+
     app.run(host="0.0.0.0", port=5000, debug=True)
