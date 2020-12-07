@@ -13,150 +13,92 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
 
 
-# class VideoModel(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     name = db.Column(db.String(100), nullable=False)
-#     views = db.Column(db.Integer, nullable=False)
-#     likes = db.Column(db.Integer, nullable=False)
-
-#     def __repr__(self):
-#         return f"Video\tname: {name}\tviews= {views}\tlikes = {likes}"
-
-
-# db.create_all()
-
-# video_put_args = reqparse.RequestParser()
-# video_put_args.add_argument(
-#     "name", type=str, help="You didn't provide a name", required=True)
-# video_put_args.add_argument(
-#     "views", type=int, help="You didn't provide views", required=True)
-# video_put_args.add_argument(
-#     "likes", type=int, help="You didn't provide likes", required=True)
-
-# resource_fields = {
-#     "id": fields.Integer,
-#     "name": fields.String,
-#     "views": fields.Integer,
-#     "likes": fields.Integer
-# }
-
-
-# class Video(Resource):
-#     @marshal_with(resource_fields)
-#     def get(self, video_id):
-#         result = VideoModel.query.filter_by(id=video_id).first()
-#         if not result:
-#             abort(404, message="Could not find")
-#         return result
-
-#     @marshal_with(resource_fields)
-#     def put(self, video_id):
-#         args = video_put_args.parse_args()
-
-#         result = VideoModel.query.filter_by(id=video_id).first()
-#         if result:
-#             abort(409, message="Entry already exists")
-
-#         video = VideoModel(
-#             id=video_id, name=args["name"], views=args["views"], likes=args["likes"])
-#         db.session.add(video)
-#         db.session.commit()
-#         return video, 201
-
-#     def delete(self, video_id):
-#         return "", 204
-
-
-# api.add_resource(Video, "/video/<int:video_id>")
-
-################################################################################################
-
 # ensure solutions are sent with the proper things
-solution_put_args = reqparse.RequestParser()
-solution_put_args.add_argument(
+solution_post_args = reqparse.RequestParser()
+solution_post_args.add_argument(
     "userName", type=str, help="Did not supply user's name")
-solution_put_args.add_argument(
+solution_post_args.add_argument(
     "userSolution", type=str, help="did not supply solution body")
 
-# ensure solutions get upvoted
+# metadata for solutions
+problem_post_args = reqparse.RequestParser()
+problem_post_args.add_argument(
+    "problemId", type=int, help="did not identify problem to upvote")
+
+
+# ensure problems are upvotes
 problem_put_args = reqparse.RequestParser()
 problem_put_args.add_argument(
     "problemId", type=int, help="did not identify problem to upvote")
-
 
 # ensure problems are added
 company_put_args = reqparse.RequestParser()
 company_put_args.add_argument(
     "problem", type=str, help="did not supply problem")
 
-
-class ProblemDatabase(db.Model):
-    __tablename__ = 'problems'
-    id = db.Column(db.Integer, primary_key=True, unique=True,
-                   autoincrement=True, nullable=False)
-    probName = db.Column(db.String(100), nullable=False)
-    probStartTime = db.Column(db.DateTime, default=datetime.now)
-    solutionId = db.Column(db.Integer, db.ForeignKey(
-        'solutions.id'), nullable=False)
-    solutions = db.relationship(
-        "SolutionDatabase", backref=db.backref("ProblemDatabase", lazy=True))
-
-    def __repr__(self):
-        return f"Problem name: {probName}"
-
-
-class SolutionDatabase(db.Model):
-    __tablename__ = 'solutions'
-    id = db.Column(db.Integer, primary_key=True, unique=True,
-                   autoincrement=True, nullable=False)
-    soluName = db.Column(db.String(100), nullable=False)
-    soluBody = db.Column(db.String(300), nullable=False)
-    soluLikes = db.Column(db.Integer, nullable=False)
-    author = db.Column(db.String(100), nullable=False)
-
-    def __repr__(self):
-        return f"Solution name: {soluName} likes: {soluLikes}"
-
-
-db.create_all()
-
-# code for company wide view to see all the problems
+### code for the company wide view to see the problems ###
 
 
 class companyView(Resource):
+    ''' code for company wide view to see all the problems'''
+
     def get(self, companyName):
+        '''would load all the problems in the company's database'''
         result = {"Company_Name": companyName}
         return result
-
-    def put(self, companyName):
-        args = company_put_args.parse_args()
-        print(f'\n{args}\n')
-        return args
 
 
 api.add_resource(companyView, "/<string:companyName>/",
                  "/<string:companyName>")
 
 
-# code for the problem view to see all the solutions
+### code for the problem view to see all the solutions ###
+
+def get_data(filename):
+    data_list = []
+    with open(filename, 'r') as file:
+        for line in file:
+            data_list.append(line)
+    return data_list
 
 
 class problemView(Resource):
+    '''code to see all the proposed solutions to a problem'''
+
     def get(self, companyName, probNum):
-        result = {"Company_Name": companyName,
-                  "Problem_id": probNum}
-        return result
+        '''loads all the solutions to a problem in the database'''
+        if probNum == 1:
+            result = get_data('data1.txt')
+        elif probNum == 2:
+            result = get_data('data2.txt')
+        return {"data": result}
+
+    def post(self, companyName, probNum):
+        '''creates a new solution'''
+        args = problem_post_args.parse_args()   # "problemId"
+        print(f'\n{args}\n')  # not sure if I should be doing things here
+        return args
 
     def put(self, companyName, probNum):
-        args = problem_put_args.parse_args()
+        '''upvotes a solution'''
+        args = problem_post_args.parse_args()   # "problemId"
         print(f'\n{args}\n')
-        return args
+        if probNum == 1:
+            solution_entry = Problem1Database.query.filter_by(
+                ID=probNum).first()  # not sure if I can access this like this
+            solution_entry.soluLikes += 1
+        elif probNum == 2:
+            solution_entry = Problem2Database.query.filter_by(
+                ID=probNum).first()  # not sure if I can access this like this
+            solution_entry.soluLikes += 1
+        db.session.commit()
+        return 200
 
 
 api.add_resource(problemView, "/<string:companyName>/<int:probNum>")
 
 
-# code for the solution view to see you enter your solution
+### code for the solution view to see you enter your solution ###
 
 
 class solutionView(Resource):
@@ -166,8 +108,18 @@ class solutionView(Resource):
                   "Solution_id": solNum}
         return result
 
-    def put(self, companyName, probNum, solNum):
-        args = solution_put_args.parse_args()
+    def post(self, companyName, probNum, solNum):
+        print(probNum)
+        if probNum == 1:
+            args = solution_post_args.parse_args()      # "userName" "userSolution"
+            with open('data1.txt', 'a') as file:
+                file.write(
+                    f'{solNum}\t{args["userName"]}\t{args["userSolution"]}\n')
+        elif probNum == 2:
+            args = solution_post_args.parse_args()      # "userName" "userSolution"
+            with open('data2.txt', 'a') as file:
+                file.write(
+                    f'{solNum}\t{args["userName"]}\t{args["userSolution"]}\n')
         print(f'\n{args}\n')
         return json.dumps(args)
 
@@ -177,6 +129,4 @@ api.add_resource(
 
 
 if __name__ == "__main__":
-
     app.run(host="0.0.0.0", port=5000, debug=True)
-    #solutions = SolutionDatabase()
